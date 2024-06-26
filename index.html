@@ -5,9 +5,31 @@
   <script src="https://unpkg.com/retell-client-js-sdk@1.3.3/dist/index.umd.js"></script>
 </head>
 <body>
+  <button id="retell-btn">Start Call</button>
   <script>
-    window.RetellWebClient = RetellWebClient;
+    window.addEventListener("message", function(event) {
+      const data = event.data;
+
+      if (data.action === "startCall") {
+        const retellClient = new RetellWebClient();
+        retellClient.startConversation({
+          callId: data.callId,
+          sampleRate: data.sampleRate,
+          enableUpdate: true
+        });
+        window.parent.postMessage({ status: "started" }, "*");
+      }
+
+      if (data.action === "stopCall") {
+        retellClient.stopConversation();
+        window.parent.postMessage({ status: "stopped" }, "*");
+      }
+    });
+
+    document.getElementById('retell-btn').addEventListener('click', function() {
+      const message = { action: 'startCall', callId: 'your-call-id', sampleRate: 16000 };
+      window.parent.postMessage(message, "*");
+    });
   </script>
 </body>
 </html>
-
